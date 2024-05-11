@@ -4,9 +4,12 @@ import uuid
 from flask import redirect as flask_redirect
 from werkzeug.utils import secure_filename
 
+
 from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
 from flask import render_template, url_for, flash, request
+
+
 
 
 def error_routes(app):  # Error handlers routes
@@ -28,8 +31,11 @@ def general_routes(app):  # This function stores all the general routes.
     def new_profile():
         form = ProfileForm()
         if form.validate_on_submit():
-            name = form.name_filed.data
-            type_ = form.role_field.data
+            #omer 11/5/24 fixed typo of name_filed to name_field
+            name = form.name_field.data
+            #omer 11/5/24 changed type_ to role
+            role = form.role_field.data
+            gen_info = form.gen_info_field.data
             flash("Profile created successfully")
             return flask_redirect(url_for('index'))
         return render_template('attack_pages/new_profile.html', form=form)
@@ -55,8 +61,22 @@ def general_routes(app):  # This function stores all the general routes.
 def attack_generation_routes(app):
     @app.route('/newattack', methods=['GET', 'POST'])  # The new chat route.
     def newattack():
-        return render_template('attack_pages/newattack.html')
+        # omer 11/5/24 added form and capturing data + generating unique id
+        form = CampaignForm()
+        if form.validate_on_submit():
+            campaign_name = form.campaign_name.data
+            mimic_profile = form.mimic_profile.data
+            target_profile = form.target_profile.data
+            campaign_description = form.campaign_description.data
+            campaign_unique_id = str(uuid.uuid4())
+            flash("Campaign created successfully using")
+            return flask_redirect(url_for('attack_dashboard'))
+        return render_template('attack_pages/newattack.html', form=form)
 
+    @app.route('/attack_dashboard', methods=['GET', 'POST'])
+    def attack_dashboard():
+        form = AttackDashboardForm()
+        return render_template('attack_pages/attack_dashboard.html', form=form)
     @app.route('/information_gathering', methods=['GET', 'POST'])
     def information_gathering():
         form = InformationGatheringForm()

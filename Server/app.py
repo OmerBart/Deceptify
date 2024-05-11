@@ -5,6 +5,7 @@ import queue
 import requests
 from flask import Flask, render_template, url_for, flash, request
 from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
 from Server.routes import execute_routes
@@ -15,6 +16,7 @@ remote_server_ip = os.getenv("REMOTE_SERVER_IP")
 remote_server_port = os.getenv("REMOTE_SERVER_PORT")
 updates_queue = queue.Queue()  # Queue for handling updates from the remote server.
 data = None  # The data parameter keeps the last update from the remoter server.
+db = None
 
 
 def check_for_updates():  # This function will run in the background to communicate with the remote server.
@@ -54,9 +56,10 @@ def create_app():
 
     audio_file_path = create_audio_file()
     app.config['UPLOAD_FOLDER'] = audio_file_path
-
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # The database URI.
     bootstrap = Bootstrap(app)
-
+    global db
+    db = SQLAlchemy(app)
     execute_routes(app)  # Executing the routes
 
     # TODO: UNCOMMENT THIS ROWS!
