@@ -4,12 +4,11 @@ import uuid
 from flask import redirect as flask_redirect
 from werkzeug.utils import secure_filename
 
-
 from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
-from flask import render_template, url_for, flash, request
+from flask import render_template, url_for, flash, request, g, session
 
-
+from Server.profile import *
 
 
 def error_routes(app):  # Error handlers routes
@@ -22,20 +21,26 @@ def error_routes(app):  # Error handlers routes
         return render_template('errors/500.html'), 500
 
 
-def general_routes(app):  # This function stores all the general routes.
+def general_routes(app, data_storage):  # This function stores all the general routes.
     @app.route('/', methods=['GET', 'POST'])  # The root router (welcome page).
     def index():
+        if not 'Profiles' in session.keys():
+            session['Profiles'] = []
+
         return render_template('index.html')
 
     @app.route('/new_profile', methods=['GET', 'POST'])
     def new_profile():
         form = ProfileForm()
         if form.validate_on_submit():
-            #omer 11/5/24 fixed typo of name_filed to name_field
             name = form.name_field.data
-            #omer 11/5/24 changed type_ to role
             role = form.role_field.data
             gen_info = form.gen_info_field.data
+            data_type = form.data_type_selection.data
+            data = form.recording_upload.data
+            new_prof = Profile(profile_name=name, role=role, general_info=gen_info,
+                               data_type=data_type, data=data)
+            data_storage.add_profile(new_prof)
             flash("Profile created successfully")
             return flask_redirect(url_for('index'))
         return render_template('attack_pages/new_profile.html', form=form)
@@ -57,8 +62,13 @@ def general_routes(app):  # This function stores all the general routes.
     def dashboard():
         return render_template('dashboard.html')
 
+    @app.route('/profiles')
+    def profiles():
+        profs = data_storage.get_profiles()
+        return render_template('_profiles.html', profiles=profs)
 
-def attack_generation_routes(app):
+
+def attack_generation_routes(app, data_storage):
     @app.route('/newattack', methods=['GET', 'POST'])  # The new chat route.
     def newattack():
         # omer 11/5/24 added form and capturing data + generating unique id
@@ -76,7 +86,9 @@ def attack_generation_routes(app):
     @app.route('/attack_dashboard', methods=['GET', 'POST'])
     def attack_dashboard():
         form = AttackDashboardForm()
-        return render_template('attack_pages/attack_dashboard.html', form=form)
+        return render_template('attack_pages/attack_dashboard.html', form=form,
+                               profiles=data_storage.get_profiles())
+
     @app.route('/information_gathering', methods=['GET', 'POST'])
     def information_gathering():
         form = InformationGatheringForm()
@@ -159,7 +171,7 @@ def attack_generation_routes(app):
         return '<h1>File saved</h1>'
 
 
-def execute_routes(app):  # Function that executes all the routes.
-    general_routes(app)  # General pages navigation
-    attack_generation_routes(app)  # Attack generation pages navigation
+def execute_routes(app, data_storage):  # Function that executes all the routes.
+    general_routes(app, data_storage)  # General pages navigation
+    attack_generation_routes(app, data_storage)  # Attack generation pages navigation
     error_routes(app)  # Errors pages navigation

@@ -1,0 +1,23 @@
+{% import "_macros.html" as macros %}
+{% extends "base.html" %}
+
+{% block title %}Deceptify- My Profiles{% endblock %}
+
+{% block page_content %}
+{% if profiles %}
+<ul class="posts">
+    {% for profile in profiles %}
+    <li class="post">
+        <div class="profile-info">
+            <div><strong>Profile Name:</strong> {{ profile.profile_name }}</div>
+            <div><strong>Role:</strong> {{ profile.role }}</div>
+            <div><strong>Data Type:</strong> {{ profile.data_type }}</div>
+            <div><strong>General Information:</strong> {{ profile.general_info }}</div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>There are no profiles yet, <a href="{{url_for('new_profile')}}">create a new profile.</a></p>
+{% endif %}
+{%endblock%}
