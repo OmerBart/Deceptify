@@ -27,7 +27,7 @@ def submit_action():
 
 def main():
     # omer 11/5/24 added flag to allow ez debug on codespace will be removed before final merge
-    flag = True
+    flag = False
     if flag:
         run_flask_app()
         return
