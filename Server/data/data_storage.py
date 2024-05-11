@@ -1,4 +1,9 @@
-"""Acting like a session database """
+"""
+Acting like a session database,
+Stores all the current information of the client, new attacks, profiles, recordings, etc.
+After the session ends, this object will push all the information to the remote server to
+save that in the database.
+"""
 import base64
 import os
 
@@ -46,3 +51,4 @@ class DataStorage:
                 rec = Recording(full_path=file_path, embedd_rec=embed_record(file_path),
                                 file_name=file)
                 self.recordings.add(rec)
+
