@@ -6,9 +6,9 @@ from werkzeug.utils import secure_filename
 
 from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
-from flask import render_template, url_for, flash, request, g, session
+from flask import render_template, url_for, flash, request, send_from_directory
 
-from Server.profile import *
+from Server.data.profile import *
 
 
 def error_routes(app):  # Error handlers routes
@@ -24,9 +24,6 @@ def error_routes(app):  # Error handlers routes
 def general_routes(app, data_storage):  # This function stores all the general routes.
     @app.route('/', methods=['GET', 'POST'])  # The root router (welcome page).
     def index():
-        if not 'Profiles' in session.keys():
-            session['Profiles'] = []
-
         return render_template('index.html')
 
     @app.route('/new_profile', methods=['GET', 'POST'])
@@ -67,6 +64,16 @@ def general_routes(app, data_storage):  # This function stores all the general r
         profs = data_storage.get_profiles()
         return render_template('_profiles.html', profiles=profs)
 
+    @app.route('/recordings')
+    def recordings():
+        data_storage.update_records_list(app.config['UPLOAD_FOLDER'])  # Updating the list before returning the page
+        recordings = data_storage.get_recordings()  # Get all the recordings.
+        return render_template('_recordings.html', recordings=recordings)
+
+    @app.route('/mp3/<path:filename>')  # Serve the MP3 files statically
+    def serve_mp3(filename):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 def attack_generation_routes(app, data_storage):
     @app.route('/newattack', methods=['GET', 'POST'])  # The new chat route.
@@ -86,8 +93,7 @@ def attack_generation_routes(app, data_storage):
     @app.route('/attack_dashboard', methods=['GET', 'POST'])
     def attack_dashboard():
         form = AttackDashboardForm()
-        return render_template('attack_pages/attack_dashboard.html', form=form,
-                               profiles=data_storage.get_profiles())
+        return render_template('attack_pages/attack_dashboard.html', form=form)
 
     @app.route('/information_gathering', methods=['GET', 'POST'])
     def information_gathering():
@@ -151,6 +157,8 @@ def attack_generation_routes(app, data_storage):
 
     @app.route('/record_voice', methods=['GET', 'POST'])  # Route for record a new voice file.
     def record_voice():
+        if request.method == 'POST':  # If a new recording uploaded to the directory, we have to update the list.
+            data_storage.update_records_list(dir_name=app.config['UPLOAD_FOLDER'])
         return render_template('data_collection_pages/record_voice.html')
 
     @app.route('/save-record', methods=['GET', 'POST'])

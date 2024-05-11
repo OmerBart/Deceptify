@@ -1,0 +1,22 @@
+{% import "_macros.html" as macros %}
+{% extends "base.html" %}
+{% block title %}Deceptify- My Recordings{% endblock %}
+
+{% block page_content %}
+<h1>My Recordings</h1>
+
+{% if recordings %}
+<ul class="posts">
+    {% for recording in recordings %}
+    <li>
+        <audio controls>
+            <source src="{{ url_for('serve_mp3', filename=recording.file_name) }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>There are no audios yet, <a href="{{ url_for('record_voice') }}">create a new audio.</a></p>
+{% endif %}
+{%endblock%}
