@@ -8,6 +8,7 @@ from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
 from flask import render_template, url_for, flash, request, send_from_directory
 
+from Server.data.attack import Attack
 from Server.data.profile import *
 
 
@@ -64,6 +65,11 @@ def general_routes(app, data_storage):  # This function stores all the general r
         profs = data_storage.get_profiles()
         return render_template('_profiles.html', profiles=profs)
 
+    @app.route('/attacks')
+    def attacks():
+        attacks = data_storage.get_attacks()
+        return render_template('_attacks.html', attacks=attacks)
+
     @app.route('/recordings')
     def recordings():
         data_storage.update_records_list(app.config['UPLOAD_FOLDER'])  # Updating the list before returning the page
@@ -86,6 +92,9 @@ def attack_generation_routes(app, data_storage):
             target_profile = form.target_profile.data
             campaign_description = form.campaign_description.data
             campaign_unique_id = str(uuid.uuid4())
+            new_attack = Attack(campaign_name=campaign_name, mimic_profile=mimic_profile,
+                                target=target_profile, description=campaign_description, camp_id=campaign_unique_id)
+            data_storage.add_attack(new_attack)
             flash("Campaign created successfully using")
             return flask_redirect(url_for('attack_dashboard'))
         return render_template('attack_pages/newattack.html', form=form)

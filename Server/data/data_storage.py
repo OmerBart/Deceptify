@@ -15,13 +15,20 @@ def embed_record(file_path):
 
 class DataStorage:
     def __init__(self):
-        self.profiles = []
+        self.profiles = set()
         self.recordings = set()
+        self.attacks = set()
 
     def add_profile(self, profile):
         print("New profile added: {}".format(profile))
-        self.profiles.append(profile)
+        self.profiles.add(profile)
         print(self.profiles)
+
+    def add_attack(self, new_attack):
+        self.attacks.add(new_attack)
+
+    def get_attacks(self):
+        return self.attacks
 
     def get_profiles(self):
         return self.profiles

@@ -1,8 +1,15 @@
 {% import "_macros.html" as macros %}
 {% extends "base.html" %}
 
+{% block title %}Deceptify- Dash Board{% endblock %}
+
 {% block page_content %}
 <div class="page-header">
     <h1>Dash Board</h1>
+    <ul class="posts">
+        <li><a href="{{url_for('profiles')}}">My Profiles</a></li>
+        <li><a href="{{url_for('recordings')}}">My Recordings</a></li>
+        <li><a href="{{url_for('attacks')}}">My Attacks</a></li>
+    </ul>
 </div>
 {%endblock%}

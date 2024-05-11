@@ -1,0 +1,25 @@
+{% import "_macros.html" as macros %}
+{% extends "base.html" %}
+
+{% block title %}Deceptify- My Attacks{% endblock %}
+
+{% block page_content %}
+<h1>My Attacks</h1>
+{% if attacks %}
+<ul class="posts">
+    {% for attack in attacks %}
+    <li class="post">
+        <div class="profile-info">
+            <div><strong>Attack ID:</strong> {{ attack.id }}</div>
+            <div><strong>Attack Name:</strong> {{ attack.campaign_name }}</div>
+            <div><strong>mimic profile:</strong> {{ attack.mimic_profile }}</div>
+            <div><strong>Target:</strong> {{ attack.target }}</div>
+            <div><strong>Description:</strong> {{ attack.description }}</div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>There are no attacks yet, <a href="{{url_for('newattack')}}">create a new attack.</a></p>
+{% endif %}
+{%endblock%}
