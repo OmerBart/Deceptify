@@ -4,7 +4,9 @@ import cv2
 import numpy as np
 
 
+# TODO: WHEN THE TIME WILL COME, CHECK THIS FUNCTION.
 def video_embedded(video_path):  # Given a video path, embedd it.
+    print(video_path)
     cap = cv2.VideoCapture(video_path)
     frames = [np.array(frame) for ret, frame in iter(lambda: cap.read(), (False, None))]
     cap.release()
