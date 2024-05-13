@@ -2,13 +2,20 @@
 This Recoding object stores the recording information, and can be transfer to the
 remote server easily using to_json() and from_json() methods.
 """
-import base64
 import json
+import numpy as np
 
 
 class Recording:
-    def __init__(self, full_path, embedd_rec, file_name):
-        self.embedd_rec = embedd_rec
+    def __init__(self, full_path, record_in_bytes, file_name):
+        """
+        :param full_path: The full path to the recording file
+        :param record_in_bytes: The recording data in bytes
+        :param file_name: The name of the recording file
+        """
+        self.record_in_bytes = record_in_bytes
+        self.embedd_rec = np.array(record_in_bytes,
+                                   dtype=np.float64)  # numpy array for transferring to the vice model at the time.
         self.full_path = full_path
         self.file_name = file_name
 

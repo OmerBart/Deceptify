@@ -5,6 +5,7 @@ After the session ends, this object will push all the information to the remote 
 save that in the database.
 """
 import base64
+import json
 import os
 
 from Server.data.recordings import Recording
@@ -23,6 +24,20 @@ class DataStorage:
         self.profiles = set()
         self.recordings = set()
         self.attacks = set()
+        self.videos = set()
+        self.images = set()
+
+    def add_image(self, image):
+        self.images.add(image)
+
+    def get_images(self):
+        return self.images
+
+    def add_video(self, video):
+        self.videos.add(video)
+
+    def get_videos(self):
+        return self.videos
 
     def add_profile(self, profile):
         print("New profile added: {}".format(profile))
@@ -48,7 +63,19 @@ class DataStorage:
         for file in os.listdir(dir_name):
             if file.endswith('.mp3'):
                 file_path = os.path.join(dir_name, file)  # Full path to the file
-                rec = Recording(full_path=file_path, embedd_rec=embed_record(file_path),
+                rec = Recording(full_path=file_path, record_in_bytes=embed_record(file_path),
                                 file_name=file)
                 self.recordings.add(rec)
 
+    def prepare_data_to_remote_server(self):
+        """Prepare the data before sending to the remote server."""
+        audios = [audio.to_json() for audio in self.recordings]
+        videos = [video.to_json() for video in self.videos]
+        profiles = [profile.to_json() for profile in self.profiles]
+        images = [img.to_json() for img in self.images]
+        return json.dumps({
+            'audios': audios,
+            'videos': videos,
+            'profiles': profiles,
+            'images': images
+        })
