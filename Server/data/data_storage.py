@@ -14,7 +14,7 @@ from Server.data.recordings import Recording
 def embed_record(file_path):
     try:
         with open(file_path, 'rb') as file:
-            return base64.b64encode(file.read()).decode('utf-8')
+            return bytearray(base64.b64encode(file.read()))
     except FileNotFoundError:
         print(f"File {file_path} not found")
 

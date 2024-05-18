@@ -6,13 +6,7 @@ import json
 import numpy as np
 from pydub import AudioSegment
 
-
-# TODO: THIS FUNCTION OCCURS A FINDNOTFOUND ERROR, CHECK THIS OUT.
-def audio_embedded(file_path):
-    print(file_path)
-    audio = AudioSegment.from_file(file_path)
-    samples = np.array(audio.get_array_of_samples())
-    return samples
+from Server.data.data_representation import bytes_to_array
 
 
 class Recording:
@@ -25,15 +19,13 @@ class Recording:
         self.full_path = full_path
         self.file_name = file_name
         self.record_in_bytes = record_in_bytes
-        self.embedd_rec = record_in_bytes
-        # TODO: AFTER FIXING THE FUNCTION, UNCOMMENT THIS LINE AND DELETE LINE 28.
-        # self.embedd_rec = audio_embedded(self.full_path)  # numpy array for transferring to the vice model at the time.
+        self.embedd_rec = bytes_to_array(record_in_bytes)
 
     def get_encoded_recording(self):
         return self.embedd_rec
 
     def __hash__(self):
-        return hash((self.embedd_rec, self.full_path, self.file_name))
+        return hash((self.full_path, self.file_name))
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
