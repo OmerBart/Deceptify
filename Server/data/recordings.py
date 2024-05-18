@@ -6,7 +6,7 @@ import json
 import numpy as np
 from pydub import AudioSegment
 
-from Server.data.data_representation import bytes_to_array
+from Server.data.audio import bytes_to_array
 
 
 class Recording:
