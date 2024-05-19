@@ -8,7 +8,7 @@ from flask_bootstrap import Bootstrap
 import os
 from dotenv import load_dotenv
 from Server.routes import execute_routes
-from Server.data.data_storage import DataStorage
+from Server.data.DataStorage import DataStorage
 
 load_dotenv()
 

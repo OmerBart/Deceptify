@@ -12,8 +12,8 @@ class Attack:
     def to_dict(self):
         return {
             'campaign_name': self.campaign_name,
-            'mimic_profile': self.mimic_profile,
-            'target': self.target,
+            'mimic_profile': self.mimic_profile.profile_name,
+            'target': self.target.profile_name,
             'description': self.description,
             'id': self.id
         }

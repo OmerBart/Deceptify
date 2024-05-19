@@ -10,9 +10,8 @@ from flask import render_template, url_for, flash, request, send_from_directory
 import Util
 from Server.data.prompt import Prompt
 from Server.data.Attacks import AttackFactory
-from Server.data.Profile import Profile
 from Server.data.attack import Attack
-from Server.data.profile import *
+from Server.data.Profile import *
 
 
 def error_routes(app):  # Error handlers routes
@@ -25,7 +24,7 @@ def error_routes(app):  # Error handlers routes
         return render_template("errors/500.html"), 500
 
 
-def general_routes(app,data_storage):  # This function stores all the general routes.
+def general_routes(app, data_storage):  # This function stores all the general routes.
     @app.route("/", methods=["GET", "POST"])  # The root router (welcome page).
     def index():
         return render_template("index.html")
@@ -83,7 +82,8 @@ def general_routes(app,data_storage):  # This function stores all the general ro
 
     @app.route('/profiles')
     def profiles():
-        profs = data_storage.get_profiles()
+        profs = data_storage.get_AllProfiles()
+        print(profs)
         return render_template('_profiles.html', profiles=profs)
 
     @app.route('/attacks')
@@ -129,7 +129,7 @@ def attack_generation_routes(app, data_storage):
             )
             new_attack = Attack(campaign_name=campaign_name, mimic_profile=mimic_profile,
                                 target=target_profile, description=campaign_description, camp_id=campaign_unique_id)
-            data_storage.add_attack(new_attack)
+            data_storage.add_attack(attack)
             flash("Campaign created successfully using")
             return flask_redirect(url_for('attack_dashboard_transition'))
         return render_template('attack_pages/newattack.html', form=form)
@@ -242,7 +242,7 @@ def attack_generation_routes(app, data_storage):
         Addform = PromptAddForm(data_storage=data_storage)
         Deleteform = PromptDeleteForm(data_storage=data_storage)
         Deleteform.prompt_delete_field.choices = [(prompt.prompt_desc, prompt.prompt_desc)
-                                           for prompt in data_storage.get_prompts()]
+                                                  for prompt in data_storage.get_prompts()]
         if Addform.submit_add.data and Addform.validate_on_submit():
             desc = Addform.prompt_add_field.data
             new_prompt = Prompt(prompt_desc=desc)  # add sound when clicking button
@@ -254,6 +254,7 @@ def attack_generation_routes(app, data_storage):
             return flask_redirect(url_for('view_prompts'))
         prs = data_storage.get_prompts()
         return render_template('attack_pages/view_prompts.html', Addform=Addform, Deleteform=Deleteform, prompts=prs)
+
 
 def execute_routes(app, data_storage):  # Function that executes all the routes.
     general_routes(app, data_storage)  # General pages navigation
