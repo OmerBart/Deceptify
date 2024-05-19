@@ -48,11 +48,7 @@ def general_routes(app, data_storage):  # This function stores all the general r
     @app.route("/profileview", methods=["GET", "POST"])
     def profileview():
         form = ViewProfilesForm()
-        print("HELLO")
-        # tmp = [(profile.getName(), profile.getName()) for profile in data_storage.get_profiles()]
-        tmp = data_storage.getAllProfileNames()
-        print(f"tmp: {tmp}")
-        form.profile_list.choices = tmp
+        form.profile_list.choices = data_storage.getAllProfileNames()
         if form.validate_on_submit():
             return flask_redirect(url_for("profile", profileo=form.profile_list.data))
         return render_template("profileview.html", form=form)
@@ -60,7 +56,6 @@ def general_routes(app, data_storage):  # This function stores all the general r
     @app.route("/profile", methods=["GET", "POST"])
     def profile():
         profile = data_storage.get_profile(request.args.get("profileo"))
-        print(f"profile1111eeee2: {profile}")
         return render_template("profile.html", profileo=profile)
 
     @app.route("/contact", methods=["GET", "POST"])
@@ -105,11 +100,9 @@ def general_routes(app, data_storage):  # This function stores all the general r
 def attack_generation_routes(app, data_storage):
     @app.route("/newattack", methods=["GET", "POST"])  # The new chat route.
     def newattack():
-        # omer 11/5/24 added form and capturing data + generating unique id
         form = CampaignForm()
-        profNames = data_storage.getAllProfileNames()
-        form.mimic_profile.choices = profNames
-        form.target_profile.choices = profNames
+        form.mimic_profile.choices = data_storage.getAllProfileNames()
+        form.target_profile.choices = data_storage.getAllProfileNames()
         if form.validate_on_submit():
             campaign_name = form.campaign_name.data
             mimic_profile = form.mimic_profile.data
@@ -127,8 +120,8 @@ def attack_generation_routes(app, data_storage):
                 campaign_description,
                 campaign_unique_id,
             )
-            new_attack = Attack(campaign_name=campaign_name, mimic_profile=mimic_profile,
-                                target=target_profile, description=campaign_description, camp_id=campaign_unique_id)
+            # new_attack = Attack(campaign_name=campaign_name, mimic_profile=mimic_profile,
+            #                     target=target_profile, description=campaign_description, camp_id=campaign_unique_id)
             data_storage.add_attack(attack)
             flash("Campaign created successfully using")
             return flask_redirect(url_for('attack_dashboard_transition'))
