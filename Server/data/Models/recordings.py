@@ -3,10 +3,8 @@ This Recoding object stores the recording information, and can be transfer to th
 remote server easily using to_json() and from_json() methods.
 """
 import json
-import numpy as np
-from pydub import AudioSegment
 
-from Server.data.audio import bytes_to_array
+from Server.data.Audio.audio import bytes_to_array
 
 
 class Recording:

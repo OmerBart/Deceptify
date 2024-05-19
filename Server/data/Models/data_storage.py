@@ -8,7 +8,7 @@ import base64
 import json
 import os
 
-from Server.data.recordings import Recording
+from Server.data.Models.recordings import Recording
 
 
 def embed_record(file_path):

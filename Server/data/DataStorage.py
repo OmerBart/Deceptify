@@ -7,9 +7,9 @@ save that in the database.
 import base64
 import json
 import os
-from Server.data.Profile import Profile
+from Server.data.Models.profile import Profile
 from typing import Set, List
-from Server.data.recordings import Recording
+from Server.data.Models.recordings import Recording
 
 
 def embed_record(file_path):
