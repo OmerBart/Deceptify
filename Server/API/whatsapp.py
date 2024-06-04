@@ -7,7 +7,7 @@ import os
 
 
 # Path to your audio file
-audio_path = os.path.expanduser(r"C:\Users\Hadar\PycharmProjects\Deceptify\Server\API\Recordings\i_love_bananas.wav")
+audio_path = os.path.expanduser(r"C:\Users\Hadar\PycharmProjects\Deceptify\Server\API\Recordings\Mirror's Edge Theme Song HQ.wav")
 
 
 def play_audio(file_path):
