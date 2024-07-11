@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Deceptify" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Deceptify" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Deceptify_proj" project-jdk-type="Python SDK" />
 </project>

@@ -1,3 +1,6 @@
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 import face_alignment
 import skimage.io
 import numpy as np
@@ -5,10 +8,6 @@ from argparse import ArgumentParser
 from skimage import img_as_ubyte
 from skimage.transform import resize
 from tqdm import tqdm
-import os
-
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-os.environ["KMP_INIT_AT_FORK"] = "FALSE"
 import imageio
 import warnings
 
@@ -161,8 +160,6 @@ def process_image(args):
 
 
 if __name__ == "__main__":
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-    os.environ["KMP_INIT_AT_FORK"] = "FALSE"
     parser = ArgumentParser()
 
     parser.add_argument("--image_shape", default=(256, 256), type=lambda x: tuple(map(int, x.split(','))),
