@@ -5,7 +5,7 @@ MAINTAINER jozo <hi@jozo.io>
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/London
+ENV TZ=Europe/London  # Change to your desired timezone
 ENV LIBGL_ALWAYS_INDIRECT=1
 
 # Create a user and add it to the audio group
@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-dev \
     build-essential \
+    portaudio19-dev \
     tzdata \
     && apt-get clean \
     && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
