@@ -39,7 +39,7 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 RUN ollama pull nomic-embed-text
 
 # Install additional Python packages
-RUN pip3 install langchain-community
+RUN pip3 install langchain-community scrapegraphai langchain-google-genai
 
 # Install Playwright
 RUN playwright install
