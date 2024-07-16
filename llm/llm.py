@@ -1,15 +1,31 @@
 from langchain_community.llms import Ollama
+from scrapegraphai.graphs import SmartScraperGraph
 
 ROLE = """
 ROLE: Your role is to make sure that you have enough information about the person you talk to.
 REMEMBER: keep your answers as short as you can, maximum 2 lines in any case.
 Query: {} 
 """
+# Scraper configurations
+graph_config = {
+    "llm": {
+        "model": "ollama/llama3",
+        "temperature": 0,
+        "format": "json",
+        "base_url": "http://localhost:11434",
+    },
+    "embeddings": {
+        "model": "ollama/nomic-embed-text",
+        "base_url": "http://localhost:11434",
+    },
+    "verbose": True,
+}
 
 
 class Llm(object):
     def __init__(self):
         self.llm = Ollama(model="llama3")
+        self.scraper = None
 
     def get_answer(self, prompt):
         return self.llm.invoke(ROLE.format(prompt))
@@ -26,3 +42,19 @@ class Llm(object):
             for chunks in self.llm.stream(prompt):
                 print(chunks, end="")
             prompt = ROLE.format(input("You're turn "))
+
+    def scrape(self, url="https://perinim.github.io/projects",
+               prompt="List me all the projects with their descriptions"):
+        self.scraper = SmartScraperGraph(
+            prompt=prompt,
+            source=url,
+            config=graph_config
+        )
+        result = self.scraper.run()
+        print(result)
+        return result
+
+
+if __name__ == '__main__':
+    llm = Llm()
+    llm.scrape()
