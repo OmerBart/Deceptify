@@ -5,7 +5,7 @@ MAINTAINER jozo <hi@jozo.io>
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/London  # Change to your desired timezone
+ENV TZ=Europe/London
 ENV LIBGL_ALWAYS_INDIRECT=1
 
 # Create a user and add it to the audio group
