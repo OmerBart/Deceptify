@@ -3,9 +3,13 @@ FROM ubuntu:20.04
 
 MAINTAINER jozo <hi@jozo.io>
 
-RUN adduser --quiet --disabled-password qtuser && usermod -a -G audio qtuser
-
+# Set environment variables to avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/London  # Change to your desired timezone
 ENV LIBGL_ALWAYS_INDIRECT=1
+
+# Create a user and add it to the audio group
+RUN adduser --quiet --disabled-password qtuser && usermod -a -G audio qtuser
 
 # Update the package repository and install necessary packages
 RUN apt-get update && apt-get install -y \
@@ -14,13 +18,16 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-dev \
     build-essential \
-    && apt-get clean
+    tzdata \
+    && apt-get clean \
+    && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
+    && dpkg-reconfigure --frontend noninteractive tzdata
 
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY .. /app
+COPY . /app
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
