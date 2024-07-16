@@ -3,20 +3,16 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 import sys
 import yaml
-from argparse import ArgumentParser
 from tqdm.auto import tqdm
-
 import imageio
 import numpy as np
 from skimage.transform import resize
 from skimage import img_as_ubyte
 import torch
 from sync_batchnorm import DataParallelWithCallback
-
 from modules.generator import OcclusionAwareGenerator
 from modules.keypoint_detector import KPDetector
 from animate import normalize_kp
-
 import ffmpeg
 from os.path import splitext
 from shutil import copyfileobj
@@ -24,6 +20,7 @@ from tempfile import NamedTemporaryFile
 
 if sys.version_info[0] < 3:
     raise Exception("You must use Python 3 or higher. Recommended version is Python 3.7")
+
 
 def load_checkpoints(config_path, checkpoint_path, cpu=False):
     with open(config_path) as f:
@@ -56,7 +53,9 @@ def load_checkpoints(config_path, checkpoint_path, cpu=False):
 
     return generator, kp_detector
 
-def make_animation(source_image, driving_video, generator, kp_detector, relative=True, adapt_movement_scale=True, cpu=False):
+
+def make_animation(source_image, driving_video, generator, kp_detector, relative=True, adapt_movement_scale=True,
+                   cpu=False):
     with torch.no_grad():
         predictions = []
         source = torch.tensor(source_image[np.newaxis].astype(np.float32)).permute(0, 3, 1, 2)
@@ -79,6 +78,7 @@ def make_animation(source_image, driving_video, generator, kp_detector, relative
             predictions.append(np.transpose(out['prediction'].data.cpu().numpy(), [0, 2, 3, 1])[0])
     return predictions
 
+
 def find_best_frame(source, driving, cpu=False):
     import face_alignment
     from scipy.spatial import ConvexHull
@@ -90,7 +90,8 @@ def find_best_frame(source, driving, cpu=False):
         kp[:, :2] = kp[:, :2] / area
         return kp
 
-    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=True, device='cpu' if cpu else 'cuda')
+    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=True,
+                                      device='cpu' if cpu else 'cuda')
     kp_source = fa.get_landmarks(255 * source)[0]
     kp_source = normalize_kp(kp_source)
     norm = float('inf')
@@ -104,44 +105,14 @@ def find_best_frame(source, driving, cpu=False):
             frame_num = i
     return frame_num
 
-if __name__ == "__main__":
-    print("Starting script...")
-    parser = ArgumentParser()
-    print("Parsing arguments...")
-    parser.add_argument("--config", required=True, help="path to config")
-    parser.add_argument("--checkpoint", default='vox-cpk.pth.tar', help="path to checkpoint to restore")
 
-    parser.add_argument("--source_image", default='sup-mat/source.png', help="path to source image")
-    parser.add_argument("--driving_video", default='driving.mp4', help="path to driving video")
-    parser.add_argument("--result_video", default='result.mp4', help="path to output")
-
-    parser.add_argument("--relative", dest="relative", action="store_true",
-                        help="use relative or absolute keypoint coordinates")
-    parser.add_argument("--adapt_scale", dest="adapt_scale", action="store_true",
-                        help="adapt movement scale based on convex hull of keypoints")
-
-    parser.add_argument("--find_best_frame", dest="find_best_frame", action="store_true",
-                        help="Generate from the frame that is the most alligned with source. (Only for faces, requires face_aligment lib)")
-
-    parser.add_argument("--best_frame", dest="best_frame", type=int, default=None, help="Set frame to start from.")
-
-    parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
-
-    parser.add_argument("--audio", dest="audio", action="store_true",
-                        help="copy audio to output from the driving video")
-
-    parser.set_defaults(relative=False)
-    parser.set_defaults(adapt_scale=False)
-    parser.set_defaults(audio_on=False)
-
-    opt = parser.parse_args()
-    print("Arguments parsed.")
-
+def animate_video(config, checkpoint, driving_video, source_image, result_video='result.mp4', relative=True,
+                  adapt_scale=True, find_best_frame=False, best_frame=None, cpu=False, audio=False):
     print("Reading source image...")
-    source_image = imageio.imread(opt.source_image)
+    source_image = imageio.imread(source_image)
     print("Source image read.")
     print("Reading driving video...")
-    reader = imageio.get_reader(opt.driving_video)
+    reader = imageio.get_reader(driving_video)
     fps = reader.get_meta_data()['fps']
     driving_video = []
     try:
@@ -155,32 +126,37 @@ if __name__ == "__main__":
     source_image = resize(source_image, (256, 256))[..., :3]
     driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
     print("Loading checkpoints...")
-    generator, kp_detector = load_checkpoints(config_path=opt.config, checkpoint_path=opt.checkpoint, cpu=opt.cpu)
+    generator, kp_detector = load_checkpoints(config_path=config, checkpoint_path=checkpoint, cpu=cpu)
     print("Checkpoints loaded successfully.")
 
-    if opt.find_best_frame or opt.best_frame is not None:
-        i = opt.best_frame if opt.best_frame is not None else find_best_frame(source_image, driving_video, cpu=opt.cpu)
+    if find_best_frame or best_frame is not None:
+        i = best_frame if best_frame is not None else find_best_frame(source_image, driving_video, cpu=cpu)
         print("Best frame: " + str(i))
         driving_forward = driving_video[i:]
         driving_backward = driving_video[:(i + 1)][::-1]
         predictions_forward = make_animation(source_image, driving_forward, generator, kp_detector,
-                                             relative=opt.relative, adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
+                                             relative=relative, adapt_movement_scale=adapt_scale, cpu=cpu)
         predictions_backward = make_animation(source_image, driving_backward, generator, kp_detector,
-                                              relative=opt.relative, adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
+                                              relative=relative, adapt_movement_scale=adapt_scale, cpu=cpu)
         predictions = predictions_backward[::-1] + predictions_forward[1:]
     else:
-        predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=opt.relative,
-                                     adapt_movement_scale=opt.adapt_scale, cpu=opt.cpu)
+        predictions = make_animation(source_image, driving_video, generator, kp_detector, relative=relative,
+                                     adapt_movement_scale=adapt_scale, cpu=cpu)
     print("Saving result video...")
-    imageio.mimsave(opt.result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
+    imageio.mimsave(result_video, [img_as_ubyte(frame) for frame in predictions], fps=fps)
     print("Result video saved successfully.")
 
-    if opt.audio:
+    if audio:
         try:
-            with NamedTemporaryFile(suffix=splitext(opt.result_video)[1]) as output:
-                ffmpeg.output(ffmpeg.input(opt.result_video).video, ffmpeg.input(opt.driving_video).audio, output.name,
+            with NamedTemporaryFile(suffix=splitext(result_video)[1]) as output:
+                ffmpeg.output(ffmpeg.input(result_video).video, ffmpeg.input(driving_video).audio, output.name,
                               c='copy').run()
-                with open(opt.result_video, 'wb') as result:
+                with open(result_video, 'wb') as result:
                     copyfileobj(output, result)
         except ffmpeg.Error:
             print("Failed to copy audio: the driving video may have no audio track or the audio format is invalid.")
+
+
+if __name__ == "__main__":
+    animate_video(config='config/vox-adv-256.yaml', checkpoint='checkpoints/vox-adv-cpk.pth',
+                  driving_video='cropVideo.mp4', source_image='cropImage.jpg')

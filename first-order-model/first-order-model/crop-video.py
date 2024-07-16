@@ -4,12 +4,12 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 import face_alignment
 import skimage.io
 import numpy as np
-from argparse import ArgumentParser
 from skimage import img_as_ubyte
 from skimage.transform import resize
 from tqdm import tqdm
 import imageio
 import warnings
+import subprocess
 
 warnings.filterwarnings("ignore")
 
@@ -48,7 +48,7 @@ def join(tube_bbox, bbox):
     return (xA, yA, xB, yB)
 
 
-def compute_bbox(start, end, fps, tube_bbox, frame_shape, inp, image_shape, increase_area=0.1):
+def compute_bbox(start, end, fps, tube_bbox, frame_shape, inp, image_shape, output_file, increase_area=0.1):
     left, top, right, bot = tube_bbox
     width = right - left
     height = bot - top
@@ -70,24 +70,26 @@ def compute_bbox(start, end, fps, tube_bbox, frame_shape, inp, image_shape, incr
     time = end - start
 
     scale = f'{image_shape[0]}:{image_shape[1]}'
-
-    return f'ffmpeg -i {inp} -ss {start} -t {time} -filter:v "crop={w}:{h}:{left}:{top}, scale={scale}" crop.mp4'
+    command = (f'ffmpeg -i {inp} -ss {start} -t {time} -filter:v "crop={w}:{h}:{left}:{top},'
+               f' scale={scale}" {output_file} -y')
+    subprocess.run(command, shell=True)
+    return command
 
 
 def compute_bbox_trajectories(trajectories, fps, frame_shape, args):
     commands = []
     for i, (bbox, tube_bbox, start, end) in enumerate(trajectories):
-        if (end - start) > args.min_frames:
-            command = compute_bbox(start, end, fps, tube_bbox, frame_shape, inp=args.inp, image_shape=args.image_shape,
-                                   increase_area=args.increase)
+        if (end - start) > args['min_frames']:
+            command = compute_bbox(start, end, fps, tube_bbox, frame_shape, inp=args['inp'], image_shape=args['image_shape'],
+                                   increase_area=args['increase'], output_file=args['output_file'])
             commands.append(command)
     return commands
 
 
 def process_video(args):
-    device = 'cpu' if args.cpu else 'cuda'
+    device = 'cpu' if args['cpu'] else 'cuda'
     fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device=device)
-    video = imageio.get_reader(args.inp)
+    video = imageio.get_reader(args['inp'])
 
     trajectories = []
     previous_frame = None
@@ -106,7 +108,7 @@ def process_video(args):
                 intersection = 0
                 for bbox in bboxes:
                     intersection = max(intersection, bb_intersection_over_union(tube_bbox, bbox))
-                if intersection > args.iou_with_initial:
+                if intersection > args['iou_with_initial']:
                     valid_trajectories.append(trajectory)
                 else:
                     not_valid_trajectories.append(trajectory)
@@ -121,7 +123,7 @@ def process_video(args):
                 for trajectory in trajectories:
                     tube_bbox = trajectory[0]
                     current_intersection = bb_intersection_over_union(tube_bbox, bbox)
-                    if intersection < current_intersection and current_intersection > args.iou_with_initial:
+                    if intersection < current_intersection and current_intersection > args['iou_with_initial']:
                         intersection = bb_intersection_over_union(tube_bbox, bbox)
                         current_trajectory = trajectory
 
@@ -139,9 +141,9 @@ def process_video(args):
 
 
 def process_image(args):
-    device = 'cpu' if args.cpu else 'cuda'
+    device = 'cpu' if args['cpu'] else 'cuda'
     fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device=device)
-    image = imageio.imread(args.inp)
+    image = imageio.imread(args['inp'])
     frame_shape = image.shape
     bboxes = extract_bbox(image, fa)
 
@@ -154,32 +156,37 @@ def process_image(args):
     tube_bbox = bbox
     start = 0
     end = 1  # Dummy value for end since it's a single image
-    command = compute_bbox(start, end, 1, tube_bbox, frame_shape, inp=args.inp, image_shape=args.image_shape,
-                           increase_area=args.increase)
-    return [command]
+    compute_bbox(start, end, 1, tube_bbox, frame_shape, inp=args['inp'],
+                 image_shape=args['image_shape'], output_file=args['output_file'],
+                 increase_area=args['increase'])
+    return ['ffmpeg command executed']
 
 
-if __name__ == "__main__":
-    parser = ArgumentParser()
+def main_process(inp, output_file, image_shape=(512, 512), increase=0.1, iou_with_initial=0.25, min_frames=150,
+                 cpu=False):
+    args = {
+        'inp': inp,
+        'output_file': output_file,
+        'image_shape': image_shape,
+        'increase': increase,
+        'iou_with_initial': iou_with_initial,
+        'min_frames': min_frames,
+        'cpu': cpu
+    }
 
-    parser.add_argument("--image_shape", default=(256, 256), type=lambda x: tuple(map(int, x.split(','))),
-                        help="Image shape")
-    parser.add_argument("--increase", default=0.1, type=float, help='Increase bbox by this amount')
-    parser.add_argument("--iou_with_initial", type=float, default=0.25,
-                        help="The minimal allowed iou with initial bbox")
-    parser.add_argument("--inp", required=True, help='Input image or video')
-    parser.add_argument("--min_frames", type=int, default=150, help='Minimum number of frames')
-    parser.add_argument("--cpu", dest="cpu", action="store_true", help="cpu mode.")
-
-    args = parser.parse_args()
-
-    if args.inp.lower().endswith(('.mp4', '.avi', '.mov', '.mkv')):
+    if args['inp'].lower().endswith(('.mp4', '.avi', '.mov', '.mkv')):
         commands = process_video(args)
-    elif args.inp.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
+    elif args['inp'].lower().endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
         commands = process_image(args)
     else:
         print("Unsupported file type. Please provide a video or image file.")
         commands = []
 
-    for command in commands:
-        print(command)
+    return commands
+
+
+# Example usage:
+# main_process('Videos/testVideo.mp4', 'output/crop.mp4')
+
+if __name__ == "__main__":
+    main_process('Images/trump.jpg', 'cropImage.jpg')
