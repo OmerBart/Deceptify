@@ -6,17 +6,21 @@ ROLE: Your role is to make sure that you have enough information about the perso
 REMEMBER: keep your answers as short as you can, maximum 2 lines in any case.
 Query: {} 
 """
+
+model_name = 'http://ollama:11434/'  # REPLACE IT TO llama3 IF YOU RUN LOCALLY
+machine = 'ollama'  # REPLACE IT TO LOCALHOST IF YOU RUN LOCALLY
+
 # Scraper configurations
 graph_config = {
     "llm": {
         "model": "ollama/llama3",
         "temperature": 0,
         "format": "json",
-        "base_url": "http://localhost:11434",
+        "base_url": f"http://{machine}:11434",
     },
     "embeddings": {
-        "model": "ollama/nomic-embed-text",
-        "base_url": "http://localhost:11434",
+        "model": f"http://{machine}:11434/nomic-embed-text",
+        "base_url": f"http://{machine}:11434",
     },
     "verbose": True,
 }
@@ -24,7 +28,7 @@ graph_config = {
 
 class Llm(object):
     def __init__(self):
-        self.llm = Ollama(model="llama3")
+        self.llm = Ollama(model=model_name)
         self.scraper = None
 
     def get_answer(self, prompt):

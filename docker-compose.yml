@@ -8,7 +8,7 @@ services:
       - ollama:/root/.ollama
       - ./llm:/llm
     ports:
-      - "11435:11434"
+      - "11434:11434"
     tty: true
     restart: always
     environment:
@@ -19,7 +19,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    command: [ "ollama", "run", "llama3" ]
+    command: [ "sh", "-c", "ollama pull nomic-embed-text && ollama run llama3" ]
     networks:
       - private_network
 
