@@ -21,7 +21,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    command: [ "sh", "-c", "ollama pull nomic-embed-text && ollama run llama3" ]
+#    command: [ "sh", "-c", "ollama pull nomic-embed-text && ollama run llama3" ]
     networks:
       - private_network
 
