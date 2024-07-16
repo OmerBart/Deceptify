@@ -33,10 +33,10 @@ COPY . /app
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Install the Ollama app
-RUN #curl -fsSL https://ollama.com/install.sh | sh
+#RUN #curl -fsSL https://ollama.com/install.sh | sh
 
 # Pull the model using Ollama command
-RUN ollama pull nomic-embed-text
+#RUN ollama pull nomic-embed-text
 
 # Install additional Python packages
 RUN pip3 install langchain-community scrapegraphai
