@@ -7,8 +7,7 @@ root = None
 
 
 def run_flask_app():
-    from app import create_app  # Import your Flask app creation function
-
+    from app import create_app
     app = create_app()
 
 

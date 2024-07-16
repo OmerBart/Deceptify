@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from routes import execute_routes
 from data.DataStorage import DataStorage
 from flask import redirect
+from llm.llm import Llm
 
 load_dotenv()
 
@@ -48,7 +49,6 @@ def create_audio_file():
     return audio_dir_path
 
 
-
 def create_app():
     app = Flask(
         __name__
@@ -63,13 +63,11 @@ def create_app():
 
     data_storage = DataStorage().load_data()
     execute_routes(app, data_storage)  # Executing the routes
+    llm = Llm()
 
-    # TODO: UNCOMMENT THIS ROWS!
-    #  THIS IS THE BACKGROUND THREAD FOR UPDATES CHECKING!!!!
-    # Set up a background thread for updates and other staff to get from the remoter server.
-    # updates_checker = threading.Thread(target=check_for_updates)
-    # updates_checker.daemon = True
-    # updates_checker.start()
+    # Just trying...
+    answer = llm.get_answer(prompt="How are you today?")
+    print(answer)
 
     app.run(debug=True, use_reloader=False)  # Running the application.
     return app
