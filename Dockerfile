@@ -38,6 +38,8 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 # Install langchain-community after pulling the model
 RUN pip3 install langchain-community
 
+RUN playwright install
+
 # Set the working directory to the Server directory
 WORKDIR /app/Server
 
