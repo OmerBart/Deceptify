@@ -1,16 +1,19 @@
 # Use an official Ubuntu runtime as a parent image
 FROM ubuntu:20.04
-#
-# Prevents some issues with tzdata during installation
-ENV DEBIAN_FRONTEND=noninteractive
+
+MAINTAINER jozo <hi@jozo.io>
+
+RUN adduser --quiet --disabled-password qtuser && usermod -a -G audio qtuser
+
+ENV LIBGL_ALWAYS_INDIRECT=1
 
 # Update the package repository and install necessary packages
 RUN apt-get update && apt-get install -y \
+    python3-pyqt5 \
     curl \
     python3-pip \
     python3-dev \
     build-essential \
-    # Add any other tools you need here \
     && apt-get clean
 
 # Set the working directory in the container
@@ -24,6 +27,8 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Run the Ollama on the machine for the LLM
 RUN curl -fsSL https://ollama.com/install.sh | sh
+RUN ollama pull llama3
+RUN pip3 install langchain-community
 
 # Set the working directory to the Server directory
 WORKDIR /app/Server
