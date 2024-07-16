@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: ollama
     volumes:
       - ollama:/root/.ollama
@@ -15,7 +17,7 @@ services:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_HOST=0.0.0.0
     healthcheck:
-      test: curl --fail http://localhost:11434 || exit 1
+      test: ["CMD", "curl", "--fail", "http://localhost:11434"]
       interval: 30s
       timeout: 10s
       retries: 5

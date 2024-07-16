@@ -32,12 +32,16 @@ COPY . /app
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-## Install the Ollama app
+# Install the Ollama app
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Install langchain-community after pulling the model
+# Pull the model using Ollama command
+RUN ollama pull nomic-embed-text
+
+# Install additional Python packages
 RUN pip3 install langchain-community
 
+# Install Playwright
 RUN playwright install
 
 # Set the working directory to the Server directory
