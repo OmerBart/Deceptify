@@ -1,11 +1,10 @@
-# Use an official Ubuntu runtime as a parent image
 FROM ubuntu:20.04
 
 MAINTAINER jozo <hi@jozo.io>
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/London  # Change to your desired timezone
+ENV TZ=Europe/London
 ENV LIBGL_ALWAYS_INDIRECT=1
 
 # Create a user and add it to the audio group
@@ -33,9 +32,10 @@ COPY . /app
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Run the Ollama on the machine for the LLM
+# Install the Ollama app
 RUN curl -fsSL https://ollama.com/install.sh | sh
-RUN ollama pull llama3
+
+# Install langchain-community after pulling the model
 RUN pip3 install langchain-community
 
 # Set the working directory to the Server directory
