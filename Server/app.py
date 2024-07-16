@@ -66,8 +66,8 @@ def create_app():
     llm = Llm()
 
     # Just trying...
-    answer = llm.get_answer(prompt="How are you today?")
-    print(answer)
+    # answer = llm.get_answer(prompt="How are you today?")
+    # print(answer)
 
     app.run(debug=True, use_reloader=False)  # Running the application.
     return app

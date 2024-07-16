@@ -62,4 +62,4 @@ WORKDIR /app/Server
 EXPOSE 5000
 
 # Run the Flask app
-CMD ["python3", "login.py"]
+CMD ["python3", "app.py"]
