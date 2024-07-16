@@ -33,14 +33,15 @@ COPY . /app
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Install the Ollama app
-RUN curl -fsSL https://ollama.com/install.sh | sh
+#RUN #curl -fsSL https://ollama.com/install.sh | sh
 
 # Pull the model using Ollama command
-RUN ollama pull nomic-embed-text
+#RUN ollama pull nomic-embed-text
 
-# Install specific version of langchain-community and scrapegraphai from GitHub
-RUN pip3 install langchain-community==0.0.38 \
-    && pip3 install git+https://github.com/ScrapeGraphAI/Scrapegraph-ai.git@1.9.1
+# Install additional Python packages
+RUN pip3 install langchain-community \
+    && pip3 install git+https://github.com/ScrapeGraphAI/Scrapegraph-ai.git
+
 
 # Install Playwright
 RUN playwright install
