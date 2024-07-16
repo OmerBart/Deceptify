@@ -14,6 +14,7 @@ RUN adduser --quiet --disabled-password qtuser && usermod -a -G audio qtuser
 RUN apt-get update && apt-get install -y \
     python3-pyqt5 \
     curl \
+     git \
     python3-pip \
     python3-dev \
     build-essential \
