@@ -39,7 +39,8 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 #RUN ollama pull nomic-embed-text
 
 # Install additional Python packages
-RUN pip3 install langchain-community scrapegraphai
+RUN pip3 install langchain-community==0.0.38 scrapegraphai==1.9.1
+
 
 # Install Playwright
 RUN playwright install
