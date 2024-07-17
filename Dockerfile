@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     build-essential \
     portaudio19-dev \
+    libpulse0 \
     tzdata \
     && apt-get clean \
     && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
@@ -42,18 +43,16 @@ COPY . /app
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install the Ollama app
-# RUN curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull the model using Ollama command
-# RUN ollama pull nomic-embed-text
-
 # Install additional Python packages
 RUN pip install langchain-community \
     && pip install git+https://github.com/ScrapeGraphAI/Scrapegraph-ai.git
 
 # Install Playwright
-RUN playwright install
+RUN pip install playwright \
+    && playwright install
+
+# Set the working directory to the Server directory
+WORKDIR /app/Server
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
