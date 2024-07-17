@@ -11,13 +11,12 @@ from Server.CallRecorder import CallRecorder
 from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
 from flask import render_template, url_for, flash, request, send_from_directory
-import Util
-from Util import *
+from Server.Util import *
 from Server.data.prompt import Prompt
 from Server.data.Attacks import AttackFactory
 from Server.data.Profile import Profile
 from threading import Thread, Event
-from SpeechToText import SpeechToText
+from Server.SpeechToText import SpeechToText
 import requests
 from tkinter import messagebox
 from dotenv import load_dotenv
@@ -82,7 +81,7 @@ def general_routes(app, data_storage):  # This function stores all the general r
 
             else:
                 # Pass the profile info and voice sample to server
-                Util.createvoice_profile(username="oded", profile_name=name, file_path=file_path)
+                createvoice_profile(username="oded", profile_name=name, file_path=file_path)
                 data_storage.add_profile(Profile(name, gen_info, str(file_path)))
 
             flash("Profile created successfully")
@@ -206,9 +205,9 @@ def attack_generation_routes(app, data_storage):
             # TODO: make video attack in case of video profile. the function will provide default video with obs
             # if profile.video_data_path is not None:
 
-            thread_call = Thread(target=Util.ExecuteCall, args=(contact_name, CloseCallEvent))
+            thread_call = Thread(target=ExecuteCall, args=(contact_name, CloseCallEvent))
             thread_call.start()
-            recorder_thread = Thread(target=Util.record_call, args=(StopRecordEvent, "Attacker-" + profile_name +
+            recorder_thread = Thread(target=record_call, args=(StopRecordEvent, "Attacker-" + profile_name +
                                                                     "-Target-" + contact_name))
             recorder_thread.start()
 
@@ -232,7 +231,7 @@ def attack_generation_routes(app, data_storage):
                 #  back to the default video after
                 return flask_redirect(url_for('attack_dashboard', profile=profile_name, contact=contact_name))
             else:
-                Util.play_audio_through_vbcable(app.config['UPLOAD_FOLDER'] + "\\" + profile_name + "-" +
+                play_audio_through_vbcable(app.config['UPLOAD_FOLDER'] + "\\" + profile_name + "-" +
                                                 form.prompt_field.data + ".wav")
                 return flask_redirect(url_for('attack_dashboard', profile=profile_name, contact=contact_name))
         return render_template('attack_pages/attack_dashboard.html', form=form, contact=contact_name)
@@ -240,7 +239,7 @@ def attack_generation_routes(app, data_storage):
     @app.route('/send_prompt', methods=['GET'])
     def send_prompt():
         prompt_path = request.args.get("prompt_path")
-        return Util.play_audio_through_vbcable(prompt_path)
+        return play_audio_through_vbcable(prompt_path)
 
     @app.route("/information_gathering", methods=["GET", "POST"])
     def information_gathering():
@@ -341,8 +340,8 @@ def attack_generation_routes(app, data_storage):
                                                   for prompt in prof.getPrompts()]
         if Addform.submit_add.data and Addform.validate_on_submit():
             desc = Addform.prompt_add_field.data
-            response = Util.generate_voice("oded", prof.profile_name, desc)
-            Util.get_voice_profile("oded", prof.profile_name, desc, response["file"])
+            response = generate_voice("oded", prof.profile_name, desc)
+            get_voice_profile("oded", prof.profile_name, desc, response["file"])
             new_prompt = Prompt(prompt_desc=desc, prompt_profile=prof.profile_name)
             prof.addPrompt(new_prompt)
             return flask_redirect(url_for('view_audio_prompts', profile=prof.profile_name))
