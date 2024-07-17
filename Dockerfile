@@ -42,13 +42,18 @@ COPY . /app
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install the Ollama app
+# RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull the model using Ollama command
+# RUN ollama pull nomic-embed-text
+
 # Install additional Python packages
 RUN pip install langchain-community \
     && pip install git+https://github.com/ScrapeGraphAI/Scrapegraph-ai.git
 
 # Install Playwright
-RUN pip install playwright \
-    && playwright install
+RUN playwright install
 
 # Set the working directory to the Server directory
 WORKDIR /app/Server
