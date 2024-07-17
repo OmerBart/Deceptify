@@ -18,9 +18,6 @@ PyAutoGUI
 pycparser
 PyGetWindow
 PyMsgBox
-pyobjc-core
-pyobjc-framework-Cocoa
-pyobjc-framework-Quartz
 pyperclip
 python-dotenv
 pytweening
