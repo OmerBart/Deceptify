@@ -1,25 +1,17 @@
-import io
-import os
-import time
 import uuid
-from flask import copy_current_request_context
 
 from flask import redirect as flask_redirect, jsonify, session, send_file
 from werkzeug.utils import secure_filename
 
-from CallRecorder import CallRecorder
-from Forms.general_forms import *
-from Forms.upload_data_forms import *
+from Server.Forms.general_forms import *
+from Server.Forms.upload_data_forms import *
 from flask import render_template, url_for, flash, request, send_from_directory
 import Util
 from Util import *
-from data.prompt import Prompt
-from data.Attacks import AttackFactory
-from data.Profile import Profile
+from Server.data.prompt import Prompt
+from Server.data.Attacks import AttackFactory
+from Server.data.Profile import Profile
 from threading import Thread, Event
-from SpeechToText import SpeechToText
-import requests
-from tkinter import messagebox
 from dotenv import load_dotenv
 
 CloseCallEvent = Event()

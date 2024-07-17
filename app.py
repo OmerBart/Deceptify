@@ -6,8 +6,8 @@ from flask import Flask, render_template, url_for, flash, request
 from flask_bootstrap import Bootstrap
 import os
 from dotenv import load_dotenv
-from routes import execute_routes
-from data.DataStorage import DataStorage
+from Server.routes import execute_routes
+from Server.data.DataStorage import DataStorage
 from flask import redirect
 
 load_dotenv()
@@ -83,13 +83,6 @@ def create_app():
 
     data_storage = DataStorage().load_data()
     execute_routes(app, data_storage)  # Executing the routes
-
-    # TODO: UNCOMMENT THIS ROWS!
-    #  THIS IS THE BACKGROUND THREAD FOR UPDATES CHECKING!!!!
-    # Set up a background thread for updates and other staff to get from the remoter server.
-    # updates_checker = threading.Thread(target=check_for_updates)
-    # updates_checker.daemon = True
-    # updates_checker.start()
 
     app.run(debug=True, use_reloader=False)  # Running the application.
     return app
