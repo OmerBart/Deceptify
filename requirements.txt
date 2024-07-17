@@ -25,7 +25,7 @@ requests
 rubicon-objc
 SoundCard
 SpeechRecognition
-typing_extensions
+typing_extensionsdocker ps
 urllib3
 visitor
 Werkzeug
