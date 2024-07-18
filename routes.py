@@ -1,13 +1,8 @@
-import io
-import os
-import time
 import uuid
-from flask import copy_current_request_context
 
 from flask import redirect as flask_redirect, jsonify, session, send_file
 from werkzeug.utils import secure_filename
 
-from Server.CallRecorder import CallRecorder
 from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
 from flask import render_template, url_for, flash, request, send_from_directory
@@ -16,9 +11,6 @@ from Server.data.prompt import Prompt
 from Server.data.Attacks import AttackFactory
 from Server.data.Profile import Profile
 from threading import Thread, Event
-from Server.SpeechToText import SpeechToText
-import requests
-from tkinter import messagebox
 from dotenv import load_dotenv
 
 CloseCallEvent = Event()
@@ -208,7 +200,7 @@ def attack_generation_routes(app, data_storage):
             thread_call = Thread(target=ExecuteCall, args=(contact_name, CloseCallEvent))
             thread_call.start()
             recorder_thread = Thread(target=record_call, args=(StopRecordEvent, "Attacker-" + profile_name +
-                                                                    "-Target-" + contact_name))
+                                                               "-Target-" + contact_name))
             recorder_thread.start()
 
             # # Omer's call recording NEED TO BE TESTED ON WINDOWS
@@ -232,7 +224,7 @@ def attack_generation_routes(app, data_storage):
                 return flask_redirect(url_for('attack_dashboard', profile=profile_name, contact=contact_name))
             else:
                 play_audio_through_vbcable(app.config['UPLOAD_FOLDER'] + "\\" + profile_name + "-" +
-                                                form.prompt_field.data + ".wav")
+                                           form.prompt_field.data + ".wav")
                 return flask_redirect(url_for('attack_dashboard', profile=profile_name, contact=contact_name))
         return render_template('attack_pages/attack_dashboard.html', form=form, contact=contact_name)
 
