@@ -71,4 +71,4 @@ RUN sed -i 's/self._pa_context_get_state(self.context)==_pa.PA_CONTEXT_READY/pri
 EXPOSE 5000
 
 # Run Xvfb and PulseAudio in the background, then run the Flask app
-CMD Xvfb :99 -screen 0 1024x768x24 & pulseaudio --start --system --disallow-exit --disable-shm & python3 app.py
+CMD Xvfb :99 -screen 0 1024x768x24 & pulseaudio --system --disallow-exit --disable-shm & python3 app.py
