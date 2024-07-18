@@ -6,6 +6,7 @@ MAINTAINER jozo <hi@jozo.io>
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/London
 ENV LIBGL_ALWAYS_INDIRECT=1
+ENV DISPLAY=:99
 
 # Update the package repository and install necessary packages
 RUN apt-get update && apt-get install -y \
