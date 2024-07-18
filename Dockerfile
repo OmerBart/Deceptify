@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/London
 ENV LIBGL_ALWAYS_INDIRECT=1
 ENV DISPLAY=:99
+ENV XAUTHORITY=/root/.Xauthority
 
 # Update the package repository and install necessary packages
 RUN apt-get update && apt-get install -y \
@@ -23,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     libpulse0 \
     pulseaudio \
     pulseaudio-utils \
+    dbus \
     xvfb \
     x11-xserver-utils \
     python3-tk \
@@ -64,11 +66,17 @@ RUN mkdir -p /run/pulse && chown -R root:root /run/pulse
 # Create X authority file
 RUN touch /root/.Xauthority
 
+# Disable D-Bus in PulseAudio configuration
+RUN echo "disable-shm = yes" >> /etc/pulse/daemon.conf \
+    && echo "disallow-module-loading = yes" >> /etc/pulse/daemon.conf \
+    && echo "autospawn = no" >> /etc/pulse/client.conf \
+    && echo "daemon-binary = /bin/true" >> /etc/pulse/client.conf
+
 # Modify pulseaudio.py for logging
 RUN sed -i 's/self._pa_context_get_state(self.context)==_pa.PA_CONTEXT_READY/print(f"self._pa_context_get_state(self.context) = {self._pa_context_get_state(self.context)}")\n        self._pa_context_get_state(self.context)==_pa.PA_CONTEXT_READY/' /usr/local/lib/python3.9/dist-packages/soundcard/pulseaudio.py
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-# Run Xvfb and PulseAudio in the background, then run the Flask app
-CMD Xvfb :99 -screen 0 1024x768x24 & pulseaudio --system --disallow-exit --disable-shm & python3 app.py
+# Run D-Bus, Xvfb and PulseAudio in the background, then run the Flask app
+CMD service dbus start && Xvfb :99 -screen 0 1024x768x24 & pulseaudio --system --disallow-exit --disable-shm & python3 app.py
