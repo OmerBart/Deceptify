@@ -1,6 +1,9 @@
-
 import pyautogui
 import time
+import Xlib.display
+import os
+
+pyautogui._pyautogui_x11._display = Xlib.display.Display(os.environ['DISPLAY'])
 
 
 def open_whatsapp():
@@ -21,12 +24,13 @@ def search_contact(contact_name):
     # Press enter to select the contact
     pyautogui.press('enter')
     time.sleep(1)
-    contact_x = 300  # Adjust this value
-    contact_y = 200  # Adjust this value
+    contact_x = 300
+    contact_y = 200
 
     # Click on the contact in the search results to open the chat
     pyautogui.click(contact_x, contact_y)
     time.sleep(2)  # Wait for the chat to open
+
 
 def start_call():
     # Click on the call button (assuming the call button is in a consistent position relative to the window)
