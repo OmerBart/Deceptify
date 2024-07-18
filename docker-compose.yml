@@ -16,8 +16,9 @@ services:
     environment:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_HOST=0.0.0.0
+      - XAUTHORITY=/root/.Xauthority
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:11434"]
+      test: [ "CMD", "curl", "--fail", "http://localhost:11434" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -44,4 +45,3 @@ volumes:
 
 networks:
   private_network:
-    driver: bridge
