@@ -1,4 +1,3 @@
-from data.prompt import Prompt
 import pyaudio
 import wave
 import requests
@@ -6,11 +5,8 @@ from dotenv import load_dotenv
 import os
 import pyautogui
 import time
-from datetime import datetime
-import app
 import json
 import speech_recognition as sr
-from flask import session
 
 load_dotenv()
 

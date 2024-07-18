@@ -7,7 +7,6 @@ from flask import copy_current_request_context
 from flask import redirect as flask_redirect, jsonify, session, send_file
 from werkzeug.utils import secure_filename
 
-from Server.CallRecorder import CallRecorder
 from Server.Forms.general_forms import *
 from Server.Forms.upload_data_forms import *
 from flask import render_template, url_for, flash, request, send_from_directory
