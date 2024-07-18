@@ -1,89 +1,59 @@
-import json
-import random
-import time
-import speech_recognition as sr
+import os
+
+import wave
+
+import pyaudio
+from faster_whisper import WhisperModel
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
-class SpeechToText:
-    """
-    A class used to convert speech to text and save the conversation.
+def record_chunk(p, stream, file_path, chunk_length=3):
+    frames = []
+    for _ in range(0, int(16000 / 1024 * chunk_length)):
+        data = stream.read(1024)
+        frames.append(data)
 
-    ...
+    wf = wave.open(file_path, 'wb')
+    wf.setnchannels(1)
+    wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
+    wf.setframerate(16000)
+    wf.writeframes(b''.join(frames))
+    wf.close()
 
-    Attributes
-    ----------
-    filename : str
-        the name of the file where the conversation will be saved
-    conversation : dict
-        a dictionary to store the conversation
 
-    Methods
-    -------
-    convert(recognizer, audio):
-        Converts the speech from the audio to text using Google's Speech Recognition.
-    start():
-        Starts the speech recognition process.
-    """
+def transcribe_chunk(model, file_path):
+    segments, info = model.transcribe(file_path, beam_size=7)
+    transcription = ' '.join(segment.text for segment in segments)
+    return transcription
 
-    def __init__(self, filename):
-        """
-        Constructs all the necessary attributes for the SpeechToText object.
 
-        Parameters
-        ----------
-            filename : str
-                the name of the file where the conversation will be saved
-        """
-        self.filename = filename
-        self.conversation = {'user': {}, 'model': {}}
+def main2():
+    # Choose your model settings
+    model_size = "medium.en"
+    model = WhisperModel(model_size, device="cuda", compute_type="float16")
 
-    def convert(self, recognizer, audio):
-        """
-        Converts the speech from the audio to text using Google's Speech Recognition.
+    p = pyaudio.PyAudio()
+    stream = p.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=1024)
 
-        Parameters
-        ----------
-            recognizer : Recognizer
-                the recognizer instance to use
-            audio : AudioData
-                the audio data to be recognized
-        """
-        try:
-            msg = recognizer.recognize_google(audio)
-            print("Speech Recognition Agent thinks you said " + msg)
-            self.conversation['user'][time.time()] = msg
-        except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
-        except sr.RequestError as e:
-            print(f"Could not request results from Google Speech Recognition service; {e}")
+    accumulated_transcription = ""  # Initialize an empty string to accumulate transcriptions
 
-    def start(self):
-        """
-        Starts the speech recognition process.
-        """
-        try:
-            r = sr.Recognizer()
-            m = sr.Microphone()
-            print("Say something!")
+    try:
+        while True:
+            chunk_file = "temp_chunk.wav"
+            record_chunk(p, stream, chunk_file)
+            transcription = transcribe_chunk(model, chunk_file)
+            print(transcription)
+            os.remove(chunk_file)
 
-            with m as source:
-                r.adjust_for_ambient_noise(source)
+            # Append the new transcription to the accumulated transcription
+            # TODO: send the transcription to the llm
+            # event.wait()
+    except KeyboardInterrupt as e:
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
 
-            stop_listening_func = r.listen_in_background(m, self.convert)
 
-            for _ in range(50):
-                time.sleep(0.2)
-
-            counter = 0
-            rnd = random.randint(1, 10000)
-            while counter + rnd != 0:
-                counter = random.randint(1, 10000)
-
-        except KeyboardInterrupt:
-            stop_listening_func(wait_for_stop=False)
-            with open(f'conversations/{self.filename}.json', 'w') as audio_file:
-                json.dump(self.conversation, audio_file)
-                print(f"Conversation transcript saved on: conversations/{self.filename}.json")
-        except Exception as e:
-            stop_listening_func(wait_for_stop=False)
-            print(f'Error: {e}')
+if __name__ == '__main__':
+    main2()
