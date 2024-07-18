@@ -51,8 +51,6 @@ RUN pip install langchain-community \
 RUN pip install playwright \
     && playwright install
 
-# Set the working directory to the Server directory
-WORKDIR /app/Server
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
