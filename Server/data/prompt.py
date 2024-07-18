@@ -1,7 +1,5 @@
-import base64
 import json
-import os
-from flask import session, current_app as app
+
 
 # TODO: fix when saving to pkl file and getting from pkl file
 class Prompt:

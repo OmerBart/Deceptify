@@ -52,8 +52,7 @@ class Llm(object):
                 print(chunks, end="")
             prompt = ROLE.format(input("You're turn "))
 
-    def scrape(self, url="https://perinim.github.io/projects",
-               prompt="List me all the projects with their descriptions"):
+    def scrape(self, url, prompt):
         self.scraper = SmartScraperGraph(
             prompt=prompt,
             source=url,
@@ -66,5 +65,5 @@ class Llm(object):
 
 if __name__ == '__main__':
     llm = Llm()
-    #llm.scrape()
+    # llm.scrape()
     llm.get_answer("what is 1 + 4")
