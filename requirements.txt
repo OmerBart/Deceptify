@@ -28,4 +28,3 @@ urllib3
 visitor
 Werkzeug
 WTForms
-pyautogui
