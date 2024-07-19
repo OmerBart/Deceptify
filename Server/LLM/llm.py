@@ -34,9 +34,11 @@ class Llm(object):
         self.llm = Ollama(model=model_name)
         self.scraper = None
 
-    def get_answer(self, prompt):
+    def get_answer(self, prompt, event=None):
         answer = self.llm.invoke(ROLE.format(prompt))
         print(answer)
+        if event:
+            event.set()
         return answer
 
     def run_long_conversation(self):

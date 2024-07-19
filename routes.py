@@ -12,9 +12,11 @@ from Server.data.Attacks import AttackFactory
 from Server.data.Profile import Profile
 from threading import Thread, Event
 from dotenv import load_dotenv
+from Server import SpeechToText
 
 CloseCallEvent = Event()
 StopRecordEvent = Event()
+GetAnswerEvent = Event()
 
 load_dotenv()
 
@@ -197,6 +199,8 @@ def attack_generation_routes(app, data_storage):
             # TODO: make video attack in case of video profile. the function will provide default video with obs
             # if profile.video_data_path is not None:
 
+            # s2t_thread = Thread(target=SpeechToText.main2, args=(GetAnswerEvent,))
+            # s2t_thread.start()
             thread_call = Thread(target=ExecuteCall, args=(contact_name, CloseCallEvent))
             thread_call.start()
             recorder_thread = Thread(target=record_call, args=(StopRecordEvent, "Attacker-" + profile_name +
