@@ -12,7 +12,7 @@ from Server.data.Attacks import AttackFactory
 from Server.data.Profile import Profile
 from threading import Thread, Event
 from dotenv import load_dotenv
-from Server import SpeechToText
+from Server import SRtest
 
 CloseCallEvent = Event()
 StopRecordEvent = Event()
@@ -199,13 +199,14 @@ def attack_generation_routes(app, data_storage):
             # TODO: make video attack in case of video profile. the function will provide default video with obs
             # if profile.video_data_path is not None:
 
-            # s2t_thread = Thread(target=SpeechToText.main2, args=(GetAnswerEvent,))
-            # s2t_thread.start()
-            thread_call = Thread(target=ExecuteCall, args=(contact_name, CloseCallEvent))
-            thread_call.start()
+            s2t_thread = Thread(target=SRtest.startConv, args=(app.config, profile_name))
+            s2t_thread.start()
+            # thread_call = Thread(target=ExecuteCall, args=(contact_name, CloseCallEvent))
+            # thread_call.start()
             recorder_thread = Thread(target=record_call, args=(StopRecordEvent, "Attacker-" + profile_name +
                                                                "-Target-" + contact_name))
-            recorder_thread.start()
+            s2t_thread.join()
+            StopRecordEvent.set()
 
             # # Omer's call recording NEED TO BE TESTED ON WINDOWS
             #

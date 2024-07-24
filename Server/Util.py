@@ -286,5 +286,5 @@ def record_call(event, fname):
             wf.writeframes(b''.join(frames))
 
             print(f"{WAVE_OUTPUT_FILENAME} succssfully saved!")
-            transcribe_audio_to_json(WAVE_OUTPUT_FILENAME, JSON_OUTPUT_FILENAME)
+            # transcribe_audio_to_json(WAVE_OUTPUT_FILENAME, JSON_OUTPUT_FILENAME)
         # ODO: SENT THE RESULT TO THE REMOTE SERVER TO INSPECT THE RESULT!

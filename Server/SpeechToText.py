@@ -81,4 +81,4 @@ def main2(getAnswerEvent=None):
 
 
 if __name__ == '__main__':
-    GoogleSpeechRecognition()
+    main2()

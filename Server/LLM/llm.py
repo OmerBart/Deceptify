@@ -2,8 +2,8 @@ from langchain_community.llms import Ollama
 from scrapegraphai.graphs import SmartScraperGraph
 
 ROLE = """
-ROLE: Your role is to make sure that you have enough information about the person you talk to.
-REMEMBER: keep your answers as short as you can, maximum 2 lines in any case.
+ROLE: Your role is to get the ID of the person that you talk with.
+REMEMBER: keep your answers as short as you can, maximum one line in any case.
 Query: {} 
 """
 
@@ -36,7 +36,6 @@ class Llm(object):
 
     def get_answer(self, prompt, event=None):
         answer = self.llm.invoke(ROLE.format(prompt))
-        print(answer)
         if event:
             event.set()
         return answer
