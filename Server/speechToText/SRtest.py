@@ -1,13 +1,14 @@
 import threading
-import time
-
 import speech_recognition as sr
 from threading import Thread
 from queue import Queue
-from Util import *
+from Server.Util import *
 from speech_recognition import WaitTimeoutError
-from LLM.llm import Llm
+from Server.LLM.llm import Llm
 import json
+
+from Server.Util import generate_voice, get_voice_profile, play_audio_through_vbcable
+from utilities_for_s2t import *
 
 r = sr.Recognizer()
 audio_queue = Queue()
@@ -15,32 +16,6 @@ conversation_history = []
 flag = False
 llm = Llm()
 isAnswer = None
-end_call_phrases = [
-    "goodbye",
-    "bye",
-    "see you soon",
-    "talk to you later",
-    "take care",
-    "have a great day",
-    "catch you later",
-    "farewell",
-    "all the best",
-    "thanks for calling",
-    "see you next time",
-    "until next time",
-    "stay safe",
-    "have a good one",
-    "see you around",
-    "bye for now",
-    "keep in touch",
-    "it was nice talking to you",
-    "speak soon",
-    "have a nice day"]
-
-
-def save_conversation_to_json(file_path):
-    with open(file_path, 'w') as file:
-        json.dump(conversation_history, file, indent=4)
 
 
 def recognize_worker(config, profile_name, username):
@@ -102,7 +77,7 @@ def startConv(config, profile_name, username="oded"):
         except WaitTimeoutError:
             print("Timed out waiting for audio")
 
-    save_conversation_to_json("conversation.json")
+    save_conversation_to_json("conversation.json", conversation_history)
     audio_queue.join()  # Block until all current audio processing jobs are done
     audio_queue.put(None)  # Tell the recognize_thread to stop
     recognize_thread.join()  # Wait for the recognize_thread to actually stop

@@ -12,7 +12,7 @@ from Server.data.Attacks import AttackFactory
 from Server.data.Profile import Profile
 from threading import Thread, Event
 from dotenv import load_dotenv
-from Server import SRtest
+from Server.speechToText import SRtest
 
 CloseCallEvent = Event()
 StopRecordEvent = Event()
