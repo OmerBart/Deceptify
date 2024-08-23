@@ -2,14 +2,17 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import StringField, SubmitField, FileField, PasswordField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Email, ValidationError
-from Server.data.DataStorage import DataStorage
+from Deceptify.Server.data import DataStorage
+
+
+# from ..data.DataStorage import DataStorage
 
 
 class CampaignForm(FlaskForm):
     campaign_name = StringField("Campaign Name", validators=[DataRequired()])
     mimic_profile = SelectField("Mimic Profile", validators=[DataRequired()])
     target_profile = SelectField("Target Profile", validators=[DataRequired()])
-    target_name = StringField("Whatsapp Name",validators=[DataRequired()])
+    target_name = StringField("Whatsapp Name", validators=[DataRequired()])
     attack_type = SelectField(
         "Attack Type", choices=["Voice", "Video"], validators=[DataRequired()]
     )
@@ -132,7 +135,7 @@ def validate_delete_prompt(form, field):
 
 
 class PromptDeleteForm(FlaskForm):
-    prompt_delete_field = SelectField(label="Select prompt to delete",validators=[validate_delete_prompt])
+    prompt_delete_field = SelectField(label="Select prompt to delete", validators=[validate_delete_prompt])
     submit_delete = SubmitField('Delete')
 
     def __init__(self, *args, **kwargs):
